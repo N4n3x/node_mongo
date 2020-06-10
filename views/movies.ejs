@@ -71,14 +71,21 @@
   </style>
 </head>
 <body>
-  <script>let sortVal = "<%= sort %>";</script>
+  <script>
+    let sortVal = "<%= sort %>";
+    let keyword = "<%= keyword %>";
+  </script>
   <div class="container" style="margin-top: 50px">
     <div class="row">
       <label for="buttonSort" class="switch">
-        
         <input id="buttonSort" type="checkbox" <%= sort === "desc" ? "checked" : "" %>>
         <span class="slider round"></span>
       </label>
+      <br>
+      <label for="keywordInput">Recherche</label>
+      <input id="keywordInput" name="keywordInput" type="text" value="<%= keyword %>">
+      <button id="keywordButton" style="border: none;background-color: #2196F3;color: white;">Ok !</button>
+      <br>
       <ol>
       <% movies.forEach((movie) => { %>
         <li><%= movie.title %> - <%= movie.year %> - <%= movie.genre %></li>
@@ -100,7 +107,7 @@
             <% if (i == currentPage) { %>
                 <li class="active"><a><%= i %></a></li>
             <% } else { %>
-                <li><a href="<%= url %>?page=<%= i %>&sort=<%= sort %>"><%= i %></a></li>
+                <li><a href="<%= url %>?page=<%= i %>&sort=<%= sort %>&keyword=<%= keyword %>"><%= i %></a></li>
             <% } %>
             <% if (i == Number(currentPage) + 4 && i < pages) { %>
                 <li class="disabled"><a>...</a></li>
@@ -109,7 +116,7 @@
         <% if (currentPage == pages) { %>
             <li class="disabled"><a>»</a></li>
         <% } else { %>
-            <li><a href="<%= url %>?page=<%= pages %>&sort=<%= sort %>">»</a></li>
+            <li><a href="<%= url %>?page=<%= pages %>&sort=<%= sort %>&keyword=<%= keyword %>">»</a></li>
         <% } %>
     </ul>
   <% } %>
@@ -118,12 +125,28 @@
 
 <script>
   let button = document.getElementById("buttonSort");
+  let keywordButton = document.getElementById("keywordButton");
+  let keywordInput = document.getElementById("keywordInput");
   let uri = "<%= url %>?page=<%= currentPage %>&sort=";
-  document.addEventListener('change', (e)=>{
+  let nextUri = "&keyword=";
+
+  button.addEventListener('change', (e)=>{
     console.log(e.target.checked);
     sortVal = e.target.checked ? "desc" : "asc";
-    uri += sortVal;
+    keyword = keywordInput.value;
+    uri = uri + sortVal + nextUri + keyword;
     window.location.replace(uri);
-  })
+  });
+
+  keywordButton.addEventListener('click', (e)=>{
+    e.preventDefault()
+    console.log(e);
+    sortVal = button.checked ? "desc" : "asc";
+    keyword = keywordInput.value;
+    uri = (uri.split("page=")[1] === "") ? uri + sortVal + nextUri + keyword : uri.split("page=")[0] + 'page=1&sort=' + sortVal + nextUri + keyword;
+      
+    // uri = uri.split("page=")[0] + '1&sort=' + sortVal + nextUri + keyword;
+    window.location.replace(uri);
+  });
 </script>
 </html>
